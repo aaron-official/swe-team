@@ -93,16 +93,34 @@ notepad swe_team\src\swe_team\instructions.py
 
 ### The 8 Specialized Agents
 
-| Agent | Model | Responsibility |
-|-------|-------|----------------|
-| **Product Manager** | GPT-4o | Transform vague ideas → detailed PRDs |
-| **CTO** | GPT-4o | Select & validate tech stack via web research |
-| **DevOps Engineer** | Claude Sonnet | Install packages in Docker, capture versions |
-| **Engineering Lead** | GPT-4o | Design architecture for *actual* installed versions |
-| **Backend Engineer** | Claude Sonnet | Implement Python/FastAPI backend |
-| **Frontend Engineer** | Claude Sonnet | Implement UI (Vanilla JS/React/Gradio) |
-| **Code Reviewer** | GPT-4o | Security audit & specification compliance |
-| **Test Engineer** | Claude Sonnet | Execute in Docker, validate functionality |
+> **Built with GPT-5-mini** — OpenAI's efficient reasoning model
+
+| Agent | Role | Responsibility |
+|-------|------|----------------|
+| **Product Manager** | Strategic | Transform vague ideas → detailed PRDs |
+| **CTO** | Research | Select & validate tech stack via web research |
+| **DevOps Engineer** | Execution | Install packages in Docker, capture versions |
+| **Engineering Lead** | Architecture | Design for *actual* installed versions |
+| **Backend Engineer** | Implementation | Build Python/FastAPI backends |
+| **Frontend Engineer** | Implementation | Build UI (Vanilla JS/React/Gradio) |
+| **Code Reviewer** | Quality | Security audit & specification compliance |
+| **Test Engineer** | Validation | Execute in Docker, validate functionality |
+
+### 🚀 Future Potential
+
+This demo was built using **GPT-5-mini** — a lightweight, cost-efficient model. 
+
+**Imagine what's possible with frontier models:**
+
+| Model | Provider | Released | Key Capability |
+|-------|----------|----------|----------------|
+| **GPT-5.2** | OpenAI | Dec 2025 | Long-running agents, professional reasoning |
+| **Claude Opus 4.5** | Anthropic | Nov 2025 | Best-in-class coding & agentic workflows |
+| **Gemini 3.0 Deep Think** | Google | Dec 2025 | Most intelligent, enhanced reasoning |
+| **Grok 4.1** | xAI | Nov 2025 | Agent Tools API, real-time data processing |
+| **Kimi K2 Thinking** | Moonshot | Nov 2025 | Open-source, optimized for agentic coding |
+
+> *The architecture is model-agnostic. Swap in any model via `agents.yaml` and watch the quality scale.*
 
 ---
 
@@ -154,7 +172,7 @@ Test Engineer finds error ──► Manager analyzes failure
 - **📝 Version-Aware Design** — Architecture matches installed package versions
 - **🔄 Autonomous Recovery** — Self-corrects errors without human intervention
 
-### Workflow Tools (Inspired by LangChain DeepAgents)
+### Workflow Tools
 
 | Tool | Purpose |
 |------|---------|
@@ -334,14 +352,19 @@ async function fetchTasks(filters = {}) {
 
 ## 🔧 Technical Highlights
 
-### Multi-LLM Orchestration
+### Model Configuration (Easily Swappable)
 ```yaml
-# agents.yaml
+# agents.yaml - Current setup uses GPT-5-mini for all agents
 product_manager:
-  llm: openai/gpt-4o           # Strategic thinking
+  llm: openai/gpt-5-mini         # Cost-efficient reasoning
   
 backend_engineer:
-  llm: anthropic/claude-sonnet-4-20250514  # Code generation precision
+  llm: openai/gpt-5-mini         # Same model, consistent quality
+
+# Want better results? Just change the model:
+# llm: openai/gpt-5.2            # Frontier reasoning
+# llm: anthropic/claude-opus-4.5 # Best coding model
+# llm: google/gemini-2.0-flash   # 1M context window
 ```
 
 ### Docker Execution Layer
@@ -421,7 +444,7 @@ MIT License — See [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**Built with ❤️ and a lot of AI**
+**Built with ❤️ and a lot of API costs**
 
 *If this impressed you, imagine what we could build together.*
 
