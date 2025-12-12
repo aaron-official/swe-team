@@ -1,0 +1,1214 @@
+# ==============================================================================
+# 🎯 AUTONOMOUS SOFTWARE ENGINEERING CREW - TASK DEFINITIONS
+# ==============================================================================
+# Version: 2.0.0 (Optimized with CrewAI Best Practices)
+# Last Updated: 2025-12-11
+#
+# DESIGN PRINCIPLES:
+# 1. Each task has a SINGLE, focused objective (Single Responsibility)
+# 2. Descriptions are detailed with explicit steps and constraints
+# 3. Expected outputs specify exact format and structure
+# 4. Context dependencies ensure proper data flow
+# 5. Guardrails are applied where validation is critical
+# ==============================================================================
+
+# ==============================================================================
+# PHASE 1: DISCOVERY & STRATEGY
+# ==============================================================================
+
+pm_task:
+  description: >
+    You are the first agent in the pipeline. Transform the user's high-level 
+    request into a comprehensive Product Requirements Document (PRD).
+    
+    USER REQUEST:
+    "{requirements}"
+    
+    CURRENT DATE: {current_date}
+    
+    YOUR MISSION:
+    Create a professional PRD that eliminates ALL ambiguity so engineers can 
+    build the product without asking a single question.
+    
+    REQUIRED SECTIONS IN YOUR OUTPUT:
+    
+    ## 1. Executive Summary
+    - One paragraph describing what we're building
+    - Target user persona
+    - Key value proposition
+    
+    ## 2. Functional Requirements
+    For each feature, include:
+    - Feature ID (F001, F002, etc.)
+    - User Story: "As a [user], I want [feature], so that [benefit]"
+    - Acceptance Criteria (testable conditions)
+    - Priority: MUST-HAVE | SHOULD-HAVE | NICE-TO-HAVE
+    
+    ## 3. Non-Functional Requirements
+    - Performance: Expected response times, throughput
+    - Security: Authentication, authorization, data protection
+    - Usability: Accessibility, responsive design requirements
+    - Reliability: Error handling, uptime expectations
+    
+    ## 4. Technical Constraints
+    - Must run in Docker (nikolaik/python-nodejs image)
+    - Must work offline (no cloud dependencies for MVP)
+    - Must be implementable by AI agents autonomously
+    
+    ## 5. UI/UX Specifications
+    - Color scheme: Dark mode with specified accent color
+    - Layout patterns (sidebar, cards, tables, etc.)
+    - Responsive breakpoints
+    
+    ## 6. Out of Scope (MVP Exclusions)
+    - Explicitly list what we are NOT building
+    
+    ## 7. Autonomous Decision Log
+    - Document every assumption you made
+    - Explain the reasoning behind each default choice
+    
+    DECISION FRAMEWORK (use when user is vague):
+    | Question                    | Default Decision                    |
+    |-----------------------------|-------------------------------------|
+    | What platform?              | Responsive Web App (React+FastAPI)  |
+    | Authentication?             | None (MVP scope)                    |
+    | Theme?                      | Dark Mode (#1a1a2e, #16213e)       |
+    | Database?                   | SQLite (local file)                 |
+    | API Style?                  | REST with JSON                      |
+    | Frontend Framework?         | React with Vite                     |
+    | Deployment?                 | Local Docker only                   |
+    
+    AFTER WRITING THE PRD:
+    Use the MCP memory tools to persist project context:
+    
+    1. Call the "memorize" tool with this information:
+       - Project name and description
+       - Core user stories (summary)
+       - Key technical decisions
+       - Non-functional requirements
+       - Any assumptions made
+    
+    Example memorize call:
+    "Project: [name] | Description: [brief] | Stack: [choices] | 
+     Key Features: [list] | Constraints: [list]"
+    
+    This enables other agents to recall the project context later.
+    
+  expected_output: >
+    A comprehensive Product Requirements Document in Markdown format containing:
+    - Executive Summary with clear product vision
+    - At least 3-5 detailed user stories with acceptance criteria
+    - Complete non-functional requirements
+    - Technical constraints and assumptions
+    - UI/UX specifications with color codes
+    - Explicit out-of-scope items
+    - Decision log documenting all assumptions
+    
+    Format: Clean markdown with proper headers (##), bullet points, and tables.
+    Length: 500-1500 words depending on project complexity.
+    
+  agent: product_manager
+  output_file: output/requirements.md
+  markdown: true
+
+# ------------------------------------------------------------------------------
+
+cto_task:
+  description: >
+    Review the Product Requirements Document and define the optimal technology 
+    stack for this project, with comprehensive validation of all choices.
+    
+    FIRST: Use the "recall" MCP tool to retrieve project context:
+    - Query: "project requirements" to get PM's decisions
+    - This gives you the user stories and constraints to guide tech choices
+    
+    YOUR MISSION:
+    Select technologies that are:
+    1. Stable and well-maintained (no deprecated libraries)
+    2. Compatible with the Docker environment (nikolaik/python-nodejs)
+    3. Simple enough for AI agents to implement correctly
+    4. Well-documented with clear examples
+    
+    MANDATORY RESEARCH PROTOCOL:
+    For EVERY library you consider, you MUST use SmartSearchTool to verify:
+    
+    1. Check for deprecation:
+       Search: "[library] deprecated 2024 2025"
+       Search: "[library] breaking changes migration"
+    
+    2. Check current stable version:
+       Search: "[library] current version pypi npm"
+    
+    3. Check compatibility:
+       Search: "[library] Python 3.11 compatibility"
+       Search: "[library] Node.js 18 20 compatibility"
+    
+    4. Check alternatives:
+       Search: "[library] vs [alternative] 2024 comparison"
+    
+    REQUIRED OUTPUT STRUCTURE:
+    
+    ## Technology Stack Decision Document
+    
+    ### Backend
+    - Language: Python [version]
+    - Framework: [name] [version]
+    - Rationale: [why this choice]
+    - Verification: [search results summary]
+    
+    ### Frontend
+    - Framework: [name] [version] OR "Python-based UI (Gradio/Streamlit)"
+    - Rationale: [why this choice]
+    - Verification: [search results summary]
+    
+    ### Database
+    - Type: [SQL/NoSQL/File-based]
+    - Technology: [name] [version if applicable]
+    - Rationale: [why this choice]
+    
+    ### Additional Libraries
+    | Library | Version | Purpose | Verified? |
+    |---------|---------|---------|-----------|
+    | ...     | ...     | ...     | ✅/❌     |
+    
+    ### Compatibility Matrix
+    - Python Version: 3.11.x ✅
+    - Node.js Version: 18.x LTS ✅
+    - Docker Image: nikolaik/python-nodejs ✅
+    
+    ### Rejected Alternatives
+    | Rejected | Reason |
+    |----------|--------|
+    | ...      | ...    |
+    
+    ### Installation Commands (for DevOps)
+    ```bash
+    # Python packages
+    pip install [package1]==[version] [package2]==[version]
+    
+    # Node packages (if needed)
+    npm install [package1]@[version]
+    ```
+    
+    CRITICAL RULES:
+    - Always specify EXACT versions, never "latest"
+    - Prefer widely-used libraries over niche ones
+    - Prefer sync APIs over async for simplicity (unless specifically needed)
+    - Prefer SQLite over PostgreSQL for MVP local development
+    - Prefer Gradio/Streamlit for simple UIs over React (less code)
+    
+    AFTER FINALIZING THE TECH STACK:
+    Use the "memorize" MCP tool to save your decisions:
+    - Backend: [framework + version]
+    - Frontend: [approach]
+    - Database: [choice]
+    - Key libraries: [list with versions]
+    
+    This enables other agents to recall your technology decisions.
+    
+  expected_output: >
+    A Technology Stack Decision Document in Markdown format containing:
+    - Complete backend stack with versions and rationale
+    - Complete frontend stack with versions and rationale
+    - Database choice with justification
+    - Table of all additional libraries with version and verification status
+    - Compatibility matrix confirming Docker image support
+    - Rejected alternatives with explanations
+    - Ready-to-use installation commands
+    
+    All library choices must be verified via web search.
+    
+  agent: cto
+  context:
+    - pm_task
+  output_file: output/tech_stack.md
+  markdown: true
+
+# ==============================================================================
+# PHASE 2: ENVIRONMENT & DESIGN
+# ==============================================================================
+
+devops_task:
+  description: >
+    Initialize the Docker development environment by installing all dependencies 
+    specified in the tech stack and capturing the exact installed versions.
+    
+    YOUR MISSION:
+    Ensure the development environment is fully configured and verified before 
+    any code is written. Reality is what matters—capture what's ACTUALLY installed.
+    
+    EXECUTION PROTOCOL:
+    
+    STEP 1: PARSE TECH STACK
+    Read output/tech_stack.md and extract:
+    - Python packages to install
+    - Node.js packages to install (if any)
+    - Specific versions requested
+    
+    STEP 2: ENVIRONMENT PREPARATION
+    Using DockerShellTool, run:
+    ```
+    pip install --upgrade pip setuptools wheel
+    ```
+    This ensures pip itself is ready.
+    
+    STEP 3: INSTALL PYTHON PACKAGES
+    For each Python package:
+    ```
+    pip install [package]==[version]
+    ```
+    If a specific version fails:
+    1. Try without version constraint
+    2. Search for the correct package name
+    3. Document any deviations
+    
+    STEP 4: INSTALL NODE PACKAGES (if applicable)
+    ```
+    npm install [package]@[version]
+    ```
+    
+    STEP 5: VERIFY INSTALLATIONS
+    For each Python package:
+    ```
+    python -c "import [module]; print([module].__version__)"
+    ```
+    For each Node package:
+    ```
+    npm list [package]
+    ```
+    
+    STEP 6: CAPTURE LOCKFILE
+    Run:
+    ```
+    pip freeze
+    ```
+    And:
+    ```
+    npm list --depth=0
+    ```
+    Parse these outputs into a clean lockfile.
+    
+    STEP 7: TROUBLESHOOTING
+    If ANY installation fails:
+    - Capture the full error message
+    - Search for solutions
+    - Try alternative approaches
+    - Document what worked
+    
+    OUTPUT FORMAT:
+    Create a lockfile.txt with this structure:
+    
+    ```
+    # ============================================
+    # LOCKFILE - Actual Installed Versions
+    # Generated: [timestamp]
+    # Container: nikolaik/python-nodejs
+    # ============================================
+    
+    # PYTHON PACKAGES
+    fastapi==0.104.1
+    uvicorn==0.24.0
+    ...
+    
+    # NODE PACKAGES (if any)
+    react@18.2.0
+    ...
+    
+    # INSTALLATION NOTES
+    # - [any deviations or issues encountered]
+    ```
+    
+  expected_output: >
+    A lockfile.txt containing:
+    - Comment header with generation timestamp
+    - All Python packages with exact versions (pip freeze format)
+    - All Node packages with exact versions (if applicable)
+    - Installation notes documenting any issues or deviations
+    
+    Every listed package must be VERIFIED as actually installed.
+    
+  agent: devops_engineer
+  context:
+    - cto_task
+  output_file: output/lockfile.txt
+
+# ------------------------------------------------------------------------------
+
+design_task:
+  description: >
+    Create a comprehensive software architecture document that serves as the 
+    complete blueprint for implementation. This is the single source of truth 
+    that developers will follow exactly.
+    
+    INPUT DOCUMENTS:
+    1. output/requirements.md - What we're building
+    2. output/lockfile.txt - What's actually installed (CRITICAL: design for these versions!)
+    
+    YOUR MISSION:
+    Design an architecture that:
+    - Implements 100% of the requirements
+    - Uses ONLY packages that exist in lockfile.txt
+    - Is explicit enough that any developer can implement without questions
+    - Accounts for library version differences (e.g., Pydantic v1 vs v2)
+    
+    REQUIRED OUTPUT STRUCTURE:
+    
+    ## 1. Project Structure
+    ```
+    output/
+    ├── backend_app.py      # Main backend application
+    ├── frontend_app.py     # Frontend/UI application (if Python-based)
+    ├── models.py           # Data models (if needed)
+    ├── utils.py            # Utility functions (if needed)
+    └── data/               # Data storage directory
+        └── .gitkeep
+    ```
+    
+    ## 2. Backend Architecture
+    
+    ### 2.1 Main Application (backend_app.py)
+    
+    #### Imports
+    ```python
+    from fastapi import FastAPI, HTTPException  # VERIFY: exists in lockfile
+    ...
+    ```
+    
+    #### Data Models
+    For each model:
+    ```python
+    class ModelName(BaseModel):
+        """Description of what this model represents."""
+        field_name: FieldType = Field(description="Field purpose")
+        ...
+    ```
+    
+    #### API Endpoints
+    For each endpoint:
+    
+    | Method | Path | Description | Request Body | Response |
+    |--------|------|-------------|--------------|----------|
+    | GET | /endpoint | Description | None | ResponseModel |
+    | POST | /endpoint | Description | RequestModel | ResponseModel |
+    
+    #### Function Signatures
+    For each function:
+    ```python
+    def function_name(param1: Type1, param2: Type2) -> ReturnType:
+        """
+        Description of function purpose.
+        
+        Args:
+            param1: Description
+            param2: Description
+            
+        Returns:
+            Description of return value
+            
+        Raises:
+            ExceptionType: When this error occurs
+        """
+        pass
+    ```
+    
+    ## 3. Frontend Architecture (if applicable)
+    
+    ### 3.1 UI Components
+    For each component:
+    - Component name
+    - Purpose
+    - Props/Inputs
+    - Rendered output
+    
+    ### 3.2 API Integration
+    For each API call:
+    - Function name
+    - Endpoint called
+    - Request format
+    - Response handling
+    
+    ## 4. Data Flow Diagram
+    ```
+    User Action → Frontend → API Request → Backend → Data Store
+                              ↓
+                         Response ← Processing
+    ```
+    
+    ## 5. Error Handling Strategy
+    - What errors can occur
+    - How each error is handled
+    - Error response format
+    
+    ## 6. Configuration
+    - Environment variables needed
+    - Default values
+    - Configuration file format (if any)
+    
+    ## 7. VERSION-SPECIFIC NOTES
+    Check lockfile.txt and document version-specific syntax:
+    
+    If Pydantic 2.x:
+    - Use `model_validator` instead of `validator`
+    - Use `model_dump()` instead of `dict()`
+    
+    If FastAPI 0.100+:
+    - Use Annotated types for dependencies
+    
+    ## 8. Implementation Checklist
+    □ File created: backend_app.py
+    □ File created: frontend_app.py
+    □ All endpoints implemented
+    □ All models defined
+    □ Error handling in place
+    
+  expected_output: >
+    A complete Architecture Document in Markdown format containing:
+    - File structure with every file listed
+    - Complete class definitions with all methods and signatures
+    - Complete API specification with all endpoints
+    - Data models with all fields and types
+    - Data flow explanation
+    - Error handling strategy
+    - Version-specific implementation notes
+    - Implementation checklist
+    
+    The document must be detailed enough that an AI agent can implement
+    the entire system without any clarifying questions.
+    
+  agent: engineering_lead
+  context:
+    - pm_task
+    - devops_task
+  output_file: output/architecture.md
+  markdown: true
+
+# ==============================================================================
+# PHASE 3: IMPLEMENTATION
+# ==============================================================================
+
+backend_task:
+  description: >
+    Implement the complete backend application exactly as specified in the 
+    architecture document. Your code must be production-quality.
+    
+    INPUT: output/architecture.md
+    OUTPUT: output/backend_app.py
+    
+    IMPLEMENTATION PROTOCOL:
+    
+    STEP 1: READ ARCHITECTURE COMPLETELY
+    Before writing any code, read the entire architecture.md to understand:
+    - All classes and their relationships
+    - All API endpoints and their contracts
+    - All data models and their fields
+    - Error handling requirements
+    
+    STEP 2: WRITE CODE IN ORDER
+    1. Imports (match lockfile.txt versions)
+    2. Configuration/Constants
+    3. Data Models (Pydantic)
+    4. Utility Functions
+    5. Core Business Logic
+    6. API Endpoints
+    7. Application Startup
+    
+    STEP 3: VERIFY SYNTAX
+    After writing, use DockerShellTool to verify:
+    ```
+    python -m py_compile output/backend_app.py
+    ```
+    
+    CODE QUALITY REQUIREMENTS:
+    
+    ✅ MUST HAVE:
+    - Type hints on ALL functions and parameters
+    - Docstrings on ALL classes and functions
+    - Comprehensive error handling (try/except)
+    - Proper HTTP status codes
+    - Environment variables for configuration (never hardcode)
+    - Logging for debugging
+    
+    ❌ MUST NOT HAVE:
+    - Hardcoded API keys or secrets
+    - Hardcoded file paths (use relative or config)
+    - Bare except clauses
+    - Unused imports
+    - Magic numbers without explanation
+    - Markdown code blocks (```python) - write raw code only
+    - host="0.0.0.0" - ALWAYS use host="localhost" for local development
+    
+    CODE TEMPLATE:
+    Your output file should follow this structure:
+    
+    ```
+    #!/usr/bin/env python3
+    """
+    [Application Name] - Backend API
+    
+    Description: [What this application does]
+    Author: AI Engineering Crew
+    Generated: [Date]
+    """
+    
+    # ==============================================================================
+    # IMPORTS
+    # ==============================================================================
+    import os
+    import logging
+    from datetime import datetime
+    # ... other imports
+    
+    # ==============================================================================
+    # CONFIGURATION
+    # ==============================================================================
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+    # IMPORTANT: Always use localhost for host binding, never 0.0.0.0
+    # Port should be configurable and auto-find available port if busy
+    HOST = "localhost"  # ALWAYS localhost, never 0.0.0.0
+    PORT = int(os.getenv("PORT", "8080"))  # Flexible, will auto-find if busy
+    # ... other config
+    
+    # ==============================================================================
+    # LOGGING SETUP
+    # ==============================================================================
+    logging.basicConfig(level=LOG_LEVEL)
+    logger = logging.getLogger(__name__)
+    
+    # ==============================================================================
+    # DATA MODELS
+    # ==============================================================================
+    # ... Pydantic models
+    
+    # ==============================================================================
+    # BUSINESS LOGIC
+    # ==============================================================================
+    # ... core functions
+    
+    # ==============================================================================
+    # API ENDPOINTS
+    # ==============================================================================
+    app = FastAPI(title="...", version="1.0.0")
+    # ... endpoints
+    
+    # ==============================================================================
+    # MAIN ENTRY POINT
+    # ==============================================================================
+    if __name__ == "__main__":
+        import uvicorn
+        import socket
+        
+        def find_available_port(start_port: int = 8080, max_attempts: int = 10) -> int:
+            """Find an available port starting from start_port."""
+            for port in range(start_port, start_port + max_attempts):
+                try:
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        s.bind(("localhost", port))
+                        return port
+                except OSError:
+                    continue
+            return start_port  # Fallback to original
+        
+        PORT = int(os.environ.get("PORT", find_available_port()))
+        # IMPORTANT: Always use localhost, never 0.0.0.0 for local development
+        uvicorn.run(app, host="localhost", port=PORT)
+    ```
+    
+    REMEMBER:
+    - Output ONLY valid Python code
+    - No markdown code blocks (```)
+    - Follow the architecture EXACTLY
+    
+  expected_output: >
+    A complete, valid Python backend application file containing:
+    - All imports from lockfile.txt compatible packages
+    - Proper file header with description
+    - Configuration via environment variables
+    - Logging setup
+    - All data models from architecture.md
+    - All business logic functions
+    - All API endpoints exactly as specified
+    - Main entry point for running the server
+    
+    The code must pass `python -m py_compile` without errors.
+    
+  agent: backend_engineer
+  context:
+    - design_task
+  output_file: output/backend_app.py
+
+# ------------------------------------------------------------------------------
+
+frontend_task:
+  description: >
+    Implement the complete frontend/UI application exactly as specified in the 
+    architecture document, ensuring perfect integration with the backend API.
+    
+    INPUT: 
+    - output/architecture.md (UI specifications)
+    - output/backend_app.py (API endpoints to call)
+    
+    OUTPUT: output/frontend_app.py
+    
+    FRAMEWORK DECISION:
+    Check architecture.md for the specified frontend framework:
+    - If Gradio: Build a Gradio interface
+    - If Streamlit: Build a Streamlit app
+    - If React: Build React components (as .py serving static files or separate)
+    
+    For Python-based UIs (Gradio/Streamlit), this is typically simpler.
+    
+    IMPLEMENTATION PROTOCOL:
+    
+    STEP 1: REVIEW BACKEND API
+    Read backend_app.py to understand:
+    - All available endpoints
+    - Request/response formats
+    - Expected data structures
+    
+    STEP 2: API INTEGRATION
+    For each backend endpoint, create a function that:
+    - Makes the HTTP request
+    - Handles errors gracefully
+    - Parses the response
+    
+    STEP 3: BUILD UI COMPONENTS
+    Following architecture.md:
+    - Create all specified UI elements
+    - Connect them to API functions
+    - Add loading states and error handling
+    
+    STEP 4: STYLING
+    Apply consistent dark mode styling:
+    - Background: #1a1a2e or similar dark color
+    - Text: #ffffff or light gray
+    - Accent: As specified in requirements
+    - Proper contrast ratios for accessibility
+    
+    CODE TEMPLATE (Gradio Example):
+    
+    ```
+    #!/usr/bin/env python3
+    """
+    [Application Name] - Frontend UI
+    
+    Description: [What this UI provides]
+    Author: AI Engineering Crew
+    Generated: [Date]
+    """
+    
+    import gradio as gr
+    import requests
+    
+    # ==============================================================================
+    # CONFIGURATION
+    # ==============================================================================
+    API_BASE_URL = "http://localhost:8000"
+    
+    # ==============================================================================
+    # API INTEGRATION FUNCTIONS
+    # ==============================================================================
+    def call_api_endpoint(param):
+        """Call the backend API endpoint."""
+        try:
+            response = requests.get(f"{API_BASE_URL}/endpoint")
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e)}
+    
+    # ==============================================================================
+    # UI COMPONENTS
+    # ==============================================================================
+    def create_interface():
+        with gr.Blocks(theme=gr.themes.Soft(
+            primary_hue="indigo",
+            neutral_hue="slate"
+        )) as demo:
+            gr.Markdown("# Application Title")
+            # ... UI components
+        return demo
+    
+    # ==============================================================================
+    # MAIN ENTRY POINT
+    # ==============================================================================
+    if __name__ == "__main__":
+        demo = create_interface()
+        demo.launch(server_name="0.0.0.0", server_port=7860)
+    ```
+    
+    UI REQUIREMENTS:
+    ✅ Dark mode styling
+    ✅ Clear visual hierarchy
+    ✅ Loading indicators for async operations
+    ✅ Error messages displayed to user
+    ✅ Responsive layout
+    ✅ Accessible elements
+    
+    ❌ AVOID:
+    - Hardcoded API URLs (use variables)
+    - Silent failures (always show errors)
+    - Blocking UI during API calls (if possible)
+    - Inconsistent styling
+    
+  expected_output: >
+    A complete, valid Python frontend application file containing:
+    - All imports from lockfile.txt compatible packages
+    - API integration functions for each backend endpoint
+    - Complete UI implementation matching architecture.md
+    - Dark mode styling
+    - Error handling and user feedback
+    - Main entry point for running the UI
+    
+    The code must work correctly with the backend_app.py API.
+    
+  agent: frontend_engineer
+  context:
+    - design_task
+    - backend_task
+  output_file: output/frontend_app.py
+
+# ==============================================================================
+# PHASE 4: VERIFICATION & QUALITY
+# ==============================================================================
+
+review_task:
+  description: >
+    Perform a comprehensive code review of both the backend and frontend 
+    applications to ensure security, correctness, and specification compliance.
+    
+    INPUT FILES TO REVIEW:
+    1. output/backend_app.py
+    2. output/frontend_app.py
+    3. output/lockfile.txt (for import verification)
+    4. output/architecture.md (for specification compliance)
+    
+    REVIEW PROTOCOL:
+    
+    ## 🔴 SECURITY AUDIT (Instant Rejection if Found)
+    
+    Check for:
+    □ Hardcoded API keys or secrets (grep for: api_key, secret, password, token)
+    □ Hardcoded credentials in any form
+    □ SQL injection vulnerabilities (raw SQL with user input)
+    □ Command injection (os.system, subprocess with user input)
+    □ Path traversal vulnerabilities
+    □ Sensitive data in logs
+    □ Disabled security features (CORS *, no validation)
+    
+    If ANY security issue is found:
+    - Document exact file:line
+    - Explain the vulnerability
+    - Provide the fix
+    - Output: "🔴 REJECTED - SECURITY ISSUES"
+    
+    ## 🟡 CORRECTNESS AUDIT (Must Fix)
+    
+    Check imports against lockfile.txt:
+    □ Every import statement uses a package in lockfile.txt
+    □ Import syntax matches installed version
+    □ No typos in module names
+    
+    Check specification compliance:
+    □ All endpoints from architecture.md exist
+    □ All data models match specification
+    □ All function signatures match specification
+    □ Error handling is consistent with design
+    
+    Check logic:
+    □ No obvious logic errors
+    □ Edge cases are handled
+    □ Return types are correct
+    □ API contracts are satisfied
+    
+    If correctness issues found:
+    - List each issue with file:line
+    - Explain what's wrong
+    - Suggest the fix
+    
+    ## 🟢 QUALITY AUDIT (Should Fix)
+    
+    Check code quality:
+    □ All functions have docstrings
+    □ Type hints are present
+    □ Variable names are descriptive
+    □ No dead code or unused imports
+    □ Consistent formatting
+    □ Proper error messages
+    
+    OUTPUT FORMAT:
+    
+    Your output MUST be one of:
+    
+    1. If ALL checks pass:
+    ```
+    # Code Review Report
+    
+    ## Status: ✅ APPROVED
+    
+    All security, correctness, and quality checks passed.
+    
+    ### Summary
+    - Files reviewed: 2
+    - Security issues: 0
+    - Correctness issues: 0
+    - Quality suggestions: [minor items or none]
+    
+    Code is ready for testing.
+    ```
+    
+    2. If security issues found:
+    ```
+    # Code Review Report
+    
+    ## Status: 🔴 REJECTED - SECURITY ISSUES
+    
+    ### Critical Security Issues
+    
+    #### Issue 1: [Title]
+    - File: [filename]
+    - Line: [number]
+    - Problem: [description]
+    - Fix: [exact fix]
+    
+    ... more issues ...
+    
+    ### Required Actions
+    1. [action 1]
+    2. [action 2]
+    
+    DO NOT PROCEED TO TESTING until issues are resolved.
+    ```
+    
+    3. If only correctness/quality issues:
+    ```
+    # Code Review Report
+    
+    ## Status: 🟡 CONDITIONALLY APPROVED
+    
+    ### Issues Found
+    
+    #### [Issue Type]: [Title]
+    - File: [filename]
+    - Line: [number]
+    - Problem: [description]
+    - Suggested Fix: [fix]
+    
+    ### Recommendation
+    [Whether to proceed with testing or fix first]
+    ```
+    
+  expected_output: >
+    A Code Review Report in Markdown format containing:
+    - Clear status: APPROVED, REJECTED, or CONDITIONALLY APPROVED
+    - Complete security audit results
+    - Complete correctness audit results
+    - Quality suggestions
+    - Specific issues with file:line references
+    - Actionable fix recommendations
+    
+    The report must clearly indicate whether code is ready for testing.
+    
+  agent: code_reviewer
+  context:
+    - backend_task
+    - frontend_task
+    - devops_task
+  output_file: output/review_report.md
+  markdown: true
+
+# ------------------------------------------------------------------------------
+
+test_task:
+  description: >
+    Execute the application in the Docker environment to verify it actually 
+    runs and behaves as expected, providing detailed diagnostics on any failures.
+    
+    INPUT:
+    - output/review_report.md (check status first!)
+    - output/backend_app.py (to run)
+    - output/frontend_app.py (optional, to test)
+    
+    TESTING PROTOCOL:
+    
+    ## STEP 0: CHECK REVIEW STATUS
+    
+    Read output/review_report.md FIRST.
+    
+    If status is "🔴 REJECTED":
+    - DO NOT run any tests
+    - Output: "⛔ TESTING BLOCKED - Review issues must be resolved first"
+    - List the review issues that need fixing
+    - Stop here
+    
+    If status is "✅ APPROVED" or "🟡 CONDITIONALLY APPROVED":
+    - Proceed with testing
+    
+    ## STEP 1: BACKEND STARTUP TEST
+    
+    Using DockerShellTool:
+    
+    1. Start the backend in the background:
+    ```
+    cd /app && timeout 30 python backend_app.py &
+    ```
+    
+    2. Wait for startup (5 seconds):
+    ```
+    sleep 5
+    ```
+    
+    3. Check if the server is running:
+    ```
+    curl -s http://localhost:8080/docs || echo "STARTUP FAILED"
+    ```
+    
+    If startup fails:
+    - Capture the full error output
+    - Identify the failing line
+    - Provide root cause analysis
+    
+    ## STEP 2: ENDPOINT TESTS
+    
+    For each endpoint defined in architecture.md:
+    
+    1. Test with valid input:
+    ```
+    curl -X [METHOD] http://localhost:8080/[endpoint] \
+      -H "Content-Type: application/json" \
+      -d '[valid payload]'
+    ```
+    
+    2. Verify response format matches specification
+    
+    3. Test with invalid input (if applicable):
+    ```
+    curl -X [METHOD] http://localhost:8080/[endpoint] \
+      -d '[invalid payload]'
+    ```
+    
+    4. Verify error handling works correctly
+    
+    ## STEP 3: FRONTEND TEST (if applicable)
+    
+    1. Check if frontend file is syntactically valid:
+    ```
+    python -m py_compile frontend_app.py
+    ```
+    
+    2. Check if imports work:
+    ```
+    python -c "from frontend_app import *"
+    ```
+    
+    ## STEP 4: CLEANUP
+    
+    Kill any background processes:
+    ```
+    pkill -f "python backend_app.py" || true
+    ```
+    
+    OUTPUT FORMAT:
+    
+    ### If All Tests Pass:
+    ```
+    # Test Execution Report
+    
+    ## Status: ✅ ALL TESTS PASSED
+    
+    ### Backend Tests
+    - Startup: ✅ Server started on port 8080
+    - Health Check: ✅ Responded successfully
+    
+    ### Endpoint Tests
+    | Endpoint | Method | Status | Response Time |
+    |----------|--------|--------|---------------|
+    | /endpoint | GET | ✅ 200 | 45ms |
+    | /endpoint | POST | ✅ 201 | 62ms |
+    
+    ### Frontend Tests
+    - Syntax Check: ✅ Passed
+    - Import Check: ✅ Passed
+    
+    ### Summary
+    The application is functional and ready for use.
+    
+    ### Next Steps
+    1. Run: `python backend_app.py`
+    2. Open: http://localhost:8080/docs
+    3. Run frontend: `python frontend_app.py`
+    ```
+    
+    ### If Tests Fail:
+    ```
+    # Test Execution Report
+    
+    ## Status: ❌ TESTS FAILED
+    
+    ### Failed Test: [Test Name]
+    
+    #### Error Output
+    ```
+    [full stack trace]
+    ```
+    
+    #### Root Cause Analysis
+    - Failing File: [filename]
+    - Failing Line: [line number]
+    - Error Type: [exception type]
+    - Most Likely Cause: [analysis]
+    
+    #### Suggested Fix
+    [Specific code change to fix the issue]
+    
+    ### Summary
+    [Number] of [total] tests failed.
+    
+    ### Required Actions
+    1. [action 1]
+    2. [action 2]
+    ```
+    
+  expected_output: >
+    A Test Execution Report in Markdown format containing:
+    - Clear status: ALL TESTS PASSED or TESTS FAILED
+    - Backend startup test results
+    - Individual endpoint test results with response status
+    - Frontend validation results
+    - Full error output for any failures
+    - Root cause analysis for failures
+    - Specific, actionable fix suggestions
+    
+    The report must clearly indicate whether the application is working.
+    
+  agent: test_engineer
+  context:
+    - review_task
+    - backend_task
+  output_file: output/test_report.md
+  markdown: true
+
+# ==============================================================================
+# PHASE 4B: FIX & RETEST LOOP (Triggered when tests fail)
+# ==============================================================================
+
+fix_task:
+  description: >
+    You are the Bug Fixer. When tests fail, you must analyze the test report,
+    apply the exact fixes, and verify the corrections work.
+    
+    YOUR MISSION:
+    Read the test report, identify all failures, apply fixes directly to the 
+    code files, and re-run the failing tests to verify resolution.
+    
+    EXECUTION PROTOCOL:
+    
+    ## STEP 0: ASSESS TEST REPORT
+    Read output/test_report.md and extract:
+    - Status: PASSED or FAILED
+    - If PASSED: Report "No fixes needed. All tests passed." and exit.
+    - If FAILED: Continue with fix process
+    
+    ## STEP 1: IDENTIFY FAILURES
+    For each failed test, extract:
+    - Failing file name
+    - Failing line number(s)
+    - Error type
+    - Suggested fix from the report
+    
+    ## STEP 2: APPLY FIXES
+    Using DockerShellTool, apply each fix:
+    
+    For Python files, use sed or rewrite:
+    ```
+    # Example: Fix trailing slash issue
+    sed -i 's/path.count("\/") == 3/path.rstrip("\/").count("\/") == 3/g' output/backend_app.py
+    ```
+    
+    Or rewrite specific sections with cat:
+    ```
+    cat > /tmp/fix.py << 'EOF'
+    # Fixed code here
+    EOF
+    # Apply fix
+    ```
+    
+    COMMON FIXES:
+    
+    1. Trailing Slash Issue:
+       - Old: `path.count("/") == 3`
+       - New: Normalize path first with `path = path.rstrip("/")`
+    
+    2. Host Binding:
+       - Old: `host="0.0.0.0"`
+       - New: `host="localhost"` 
+    
+    3. Port Configuration:
+       - Use port 8080 for backend: `port=8080`
+    
+    4. Unused Imports:
+       - Remove with: `sed -i '/import traceback/d' output/backend_app.py`
+    
+    ## STEP 3: VERIFY SYNTAX
+    After applying fixes, verify code is still valid:
+    ```
+    python -m py_compile output/backend_app.py
+    ```
+    
+    ## STEP 4: RE-RUN FAILING TESTS
+    Start the server and run the specific test that failed:
+    ```
+    cd /app && timeout 10 python output/backend_app.py &
+    sleep 5
+    curl http://localhost:8080/api/tasks/1/  # The trailing slash test
+    pkill -f "python output/backend_app.py" || true
+    ```
+    
+    ## STEP 5: REPORT RESULTS
+    
+    OUTPUT FORMAT:
+    
+    ```
+    # Fix Application Report
+    
+    ## Fixes Applied
+    
+    ### Fix 1: [Description]
+    - File: [filename]
+    - Line: [line number]
+    - Change: [before] -> [after]
+    - Verification: [pass/fail]
+    
+    ### Fix 2: [Description]
+    ...
+    
+    ## Re-Test Results
+    - Test 1: [endpoint] - [pass/fail]
+    - Test 2: [endpoint] - [pass/fail]
+    
+    ## Final Status: [ALL FIXES APPLIED / SOME ISSUES REMAIN]
+    
+    ## Summary
+    [X] of [Y] issues fixed and verified.
+    
+    ## Remaining Issues (if any)
+    - [issue 1]
+    - [issue 2]
+    ```
+    
+  expected_output: >
+    A Fix Application Report in Markdown format containing:
+    - List of all fixes applied with before/after code
+    - Syntax verification results
+    - Re-test results for previously failing tests
+    - Clear final status indicating if all issues are resolved
+    
+  agent: backend_engineer
+  context:
+    - test_task
+    - backend_task
+  output_file: output/fix_report.md
+  markdown: true
+
+# ==============================================================================
+# END OF TASK DEFINITIONS
+# ==============================================================================
