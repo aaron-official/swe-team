@@ -41,9 +41,8 @@ python -c "from swe_team.crew import EngineeringTeam; print('✅ Installation su
 Create a `.env` file in the project root:
 
 ```bash
-# Required - LLM Providers
+# Required - LLM Provider
 OPENAI_API_KEY=sk-proj-...
-ANTHROPIC_API_KEY=sk-ant-api03-...
 
 # Required - Web Search
 SERPER_API_KEY=...

@@ -14,7 +14,7 @@ Deep dive into the system internals of the Autonomous Software Engineering Crew.
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           CREWAI FRAMEWORK                                  │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                    HIERARCHICAL MANAGER (GPT-4o)                      │  │
+│  │                    HIERARCHICAL MANAGER (GPT-5-mini)                  │  │
 │  │  • Delegates tasks to specialized agents                             │  │
 │  │  • Monitors progress via workflow tools                              │  │
 │  │  • Routes failures to responsible agents                             │  │
@@ -84,7 +84,7 @@ class EngineeringTeam:
             agents=self.agents,
             tasks=self.tasks,
             process=Process.hierarchical,
-            manager_llm="openai/gpt-4o",
+            manager_llm="openai/gpt-5-mini",
             planning=False  # Disabled to avoid JSON parsing issues
         )
 ```
@@ -148,7 +148,7 @@ class DockerShellTool(BaseTool):
         return result.output.decode('utf-8')
 ```
 
-#### Workflow Tools (DeepAgents-Inspired)
+#### Workflow Tools
 
 ```python
 class TodoListTool(BaseTool):
@@ -182,26 +182,25 @@ class ValidationCheckpointTool(BaseTool):
                 return f"❌ File not found. Created by: {creator}"
 ```
 
-### 4. Multi-Model Strategy
+### 4. Model Configuration
 
-Different models for different purposes:
+All agents use the same model for consistency:
 
-| Model | Agents | Reasoning |
-|-------|--------|-----------|
-| **GPT-4o** | PM, CTO, Architect, Reviewer | Strong reasoning, planning, analysis |
-| **Claude Sonnet** | DevOps, Backend, Frontend, Tester | Precise code generation, execution |
+| Model | Agents | Purpose |
+|-------|--------|-------------|
+| **GPT-5-mini** | All 8 agents | Cost-efficient, consistent quality |
 
 Configured in `agents.yaml`:
 
 ```yaml
 product_manager:
   role: "Technical Product Manager"
-  llm: openai/gpt-4o
+  llm: openai/gpt-5-mini
   max_iter: 5
 
 backend_engineer:
   role: "Senior Python Developer"
-  llm: anthropic/claude-sonnet-4-20250514
+  llm: openai/gpt-5-mini
   max_iter: 10
 ```
 
@@ -335,8 +334,7 @@ else:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PYTHONUTF8` | `1` | Forces UTF-8 encoding |
-| `OPENAI_API_KEY` | — | Required for GPT models |
-| `ANTHROPIC_API_KEY` | — | Required for Claude |
+| `OPENAI_API_KEY` | — | Required for GPT-5-mini |
 | `SERPER_API_KEY` | — | Web search capability |
 | `PORT` | `8080` | Backend server port |
 | `FRONTEND_PORT` | `3000` | Frontend server port |

@@ -5,8 +5,7 @@
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python&logoColor=white)
 ![CrewAI](https://img.shields.io/badge/CrewAI-Multi--Agent-purple?style=for-the-badge)
 ![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991?style=for-the-badge&logo=openai&logoColor=white)
-![Anthropic](https://img.shields.io/badge/Anthropic-Claude-orange?style=for-the-badge)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--5--mini-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 **An AI-powered software engineering team that autonomously builds complete applications from natural language descriptions.**
 
@@ -41,7 +40,6 @@ pip install -e .
 
 # 2. Configure API keys (.env file)
 OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
 SERPER_API_KEY=...
 
 # 3. Define your project (edit this file)
@@ -51,7 +49,7 @@ notepad swe_team\src\swe_team\instructions.py
 .\run.ps1
 ```
 
-**Prerequisites:** Docker Desktop running, Python 3.11+, API keys for OpenAI & Anthropic
+**Prerequisites:** Docker Desktop running, Python 3.11+, OpenAI API key
 
 ---
 
@@ -60,7 +58,7 @@ notepad swe_team\src\swe_team\instructions.py
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                          HIERARCHICAL CREW MANAGER                          │
-│                     (GPT-4o orchestrating all agents)                       │
+│                    (GPT-5-mini orchestrating all agents)                    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                       │
         ┌─────────────────────────────┼─────────────────────────────┐
@@ -167,7 +165,7 @@ Test Engineer finds error ──► Manager analyzes failure
 
 ### Core Capabilities
 - **🐳 Docker Sandboxing** — All code execution in isolated containers
-- **🧠 Multi-Model Orchestration** — GPT-4o for strategy, Claude for implementation
+- **🧠 Single-Model Simplicity** — All agents powered by GPT-5-mini
 - **🔍 Real-Time Research** — CTO validates libraries aren't deprecated
 - **📝 Version-Aware Design** — Architecture matches installed package versions
 - **🔄 Autonomous Recovery** — Self-corrects errors without human intervention
@@ -437,8 +435,8 @@ MIT License — See [LICENSE](LICENSE) for details.
 ## 🙏 Acknowledgments
 
 - [CrewAI](https://docs.crewai.com) — Multi-agent orchestration framework
-- [LangChain DeepAgents](https://blog.langchain.dev) — Workflow tool inspiration
-- [OpenAI](https://openai.com) & [Anthropic](https://anthropic.com) — LLM providers
+- [OpenAI](https://openai.com) — GPT-5-mini language model
+- [Docker](https://docker.com) — Containerized code execution
 
 ---
 
